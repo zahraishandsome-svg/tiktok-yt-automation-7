@@ -4,6 +4,8 @@ channels:
   - id: channel_1
     tiktok_username: "101aguafrescas"
     youtube_channel_name: "101aguafrescas"
+    # TikToks have no usable titles — force this exact title on every upload.
+    fixed_title: "#101aguafrescas"
     google_credentials_file: "credentials/channel_1_client_secret.json"
     oauth_token_file: "tokens/channel_1_token.json"
     videos_per_day: 2

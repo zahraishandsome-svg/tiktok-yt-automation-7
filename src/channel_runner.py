@@ -911,10 +911,15 @@ def _handle_download_failure(channel: Dict[str, Any], video: Dict[str, Any],
 def _resolve_title(channel: Dict[str, Any], video: Dict[str, Any]) -> str:
     """
     Return the best available title for a YouTube upload.
-    If the TikTok title is missing or too short (<5 chars), fall back to:
+    If the channel sets `fixed_title`, that exact title is used on EVERY upload
+    (used for channels whose TikToks have no usable titles).
+    Otherwise: use the TikTok title, or fall back to
         "{youtube_channel_name} — {Month DD, YYYY}"
     where the date is the TikTok video's upload date (or today if unknown).
     """
+    fixed = (channel.get("fixed_title") or "").strip()
+    if fixed:
+        return fixed
     title = (video.get("title") or "").strip()
     if len(title) >= 5:
         return title
