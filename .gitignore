@@ -12,3 +12,7 @@ __pycache__/
 downloads/*
 !downloads/.gitkeep
 logs/*.log
+
+# Local-only files (machine-specific, run_local.bat contains a token)
+run_local.bat
+staging/
