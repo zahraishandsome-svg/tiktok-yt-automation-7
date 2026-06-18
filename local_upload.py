@@ -109,6 +109,15 @@ if not mp4.exists():
     log.error("Staged mp4 missing: %s", mp4)
     sys.exit(1)
 
+# Safety net: never upload a video already marked uploaded. This is the last line
+# of defence against duplicates if staging ever hands us an already-posted clip.
+if meta["tiktok_video_id"] in db.get_posted_video_ids(channel_id, channel.get("upload_mode", "short_only")):
+    log.warning("Video %s is already uploaded — skipping to avoid a DUPLICATE.",
+                meta["tiktok_video_id"])
+    for f in STAGING.glob(f"slot{args.slot}.*"):
+        f.unlink()
+    sys.exit(0)
+
 log.info("Uploading from LOCAL IP: %s | title='%s' | is_short=%s",
          meta["tiktok_video_id"], meta["title"], meta["is_short"])
 
