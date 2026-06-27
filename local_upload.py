@@ -48,6 +48,21 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def _retry(fn, what, attempts=6, delay=30):
+    """Retry a network op through transient failures (DNS drop, timeout, 5xx).
+    Today's miss was a getaddrinfo (DNS) blip at 8 PM — this rides those out."""
+    import time
+    for i in range(1, attempts + 1):
+        try:
+            return fn()
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as e:
+            if i == attempts:
+                raise
+            log.warning("%s failed (attempt %d/%d): %s — retrying in %ds",
+                        what, i, attempts, e, delay)
+            time.sleep(delay)
+
+
 def gh_json(url):
     req = urllib.request.Request(url, headers={
         "Authorization": f"Bearer {TOKEN}",
@@ -89,7 +104,10 @@ if db.slot_already_ran(channel_id, args.slot):
 
 # Find the newest non-expired staged artifact for this slot
 name = f"staged-slot{args.slot}"
-arts = gh_json(f"https://api.github.com/repos/{REPO}/actions/artifacts?per_page=100")["artifacts"]
+arts = _retry(
+    lambda: gh_json(f"https://api.github.com/repos/{REPO}/actions/artifacts?per_page=100"),
+    "List artifacts",
+)["artifacts"]
 cands = [a for a in arts if a["name"] == name and not a["expired"]]
 if not cands:
     log.error("No staged artifact '%s' found — did the stage workflow run?", name)
@@ -97,7 +115,7 @@ if not cands:
 art = max(cands, key=lambda a: a["created_at"])
 log.info("Downloading artifact %s (id=%s, created %s)", name, art["id"], art["created_at"])
 
-zip_bytes = download_artifact_zip(art["archive_download_url"])
+zip_bytes = _retry(lambda: download_artifact_zip(art["archive_download_url"]), "Download artifact")
 STAGING = Path("staging")
 STAGING.mkdir(exist_ok=True)
 with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
