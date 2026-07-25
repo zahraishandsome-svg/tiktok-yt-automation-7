@@ -2,9 +2,10 @@
 
 channels:
   - id: channel_1
-    tiktok_username: "101aguafrescas"
+    # TikTok handle changed 2026-07-25 (old @101aguafrescas account is gone).
+    tiktok_username: "101nightmarketlosangeles"
     youtube_channel_name: "101aguafrescas"
-    # TikToks have no usable titles — force this exact title on every upload.
+    # Force this exact title on every upload.
     fixed_title: "#101aguafrescas"
     google_credentials_file: "credentials/channel_1_client_secret.json"
     oauth_token_file: "tokens/channel_1_token.json"
@@ -18,7 +19,11 @@ channels:
     enabled: true
     max_retry_days: 7
     shorts_max_seconds: 180
-    upload_mode: short_only
+    upload_mode: popular_split
+    # Slot 1 = newest short, Slot 2 = most-viewed short. Photo/slideshow posts are
+    # ignored automatically (dropped at fetch + audio-only download skipped).
+    # Higher candidate budget so the popular slot can skip past viral photo posts.
+    max_download_candidates: 20
     slot_publish_times_utc:
       1: "15:00"   # PUBLIC at 8 PM PKT (UTC+5)
       2: "17:00"   # PUBLIC at 10 PM PKT (UTC+5)
