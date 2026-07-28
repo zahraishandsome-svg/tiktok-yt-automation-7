@@ -5,6 +5,8 @@ channels:
     # TikTok handle changed 2026-07-25 (old @101aguafrescas account is gone).
     tiktok_username: "101nightmarketlosangeles"
     youtube_channel_name: "101aguafrescas"
+    # The Google account that owns this YouTube channel (supplied by the user).
+    owner_email: "zahidkhandrishak7886@gmail.com"
     # No fixed title — use the TikTok caption, else fall back to name + upload date.
     google_credentials_file: "credentials/channel_1_client_secret.json"
     oauth_token_file: "tokens/channel_1_token.json"
